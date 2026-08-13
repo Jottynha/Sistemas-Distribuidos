@@ -8,8 +8,7 @@ import javax.swing.JOptionPane;
 public class ClientTCP {
     public void execute() {
         try {
-            Socket client = new Socket("200.128.141.229", 3322);
-            JOptionPane.showMessageDialog(null,"Conectado ao servidor!");
+            Socket client = new Socket("200.128.141.225", 3322);
             ObjectInputStream reader = new ObjectInputStream(client.getInputStream());
             ObjectOutputStream writer = new ObjectOutputStream(client.getOutputStream());
             writer.flush();
@@ -18,7 +17,6 @@ public class ClientTCP {
             String resposta = JOptionPane.showInputDialog(null,"Digite sua resposta:");
             writer.writeUTF(resposta);
             writer.flush();
-            JOptionPane.showMessageDialog(null,"Resposta enviada!");
             reader.close();
             writer.close();
             client.close();
