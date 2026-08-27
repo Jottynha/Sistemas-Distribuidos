@@ -41,7 +41,7 @@ public class FrmPainelDeControle extends javax.swing.JFrame {
         LBLSrvPublicidadeLegenda = new javax.swing.JLabel();
         BtnAtivarPublicidade = new javax.swing.JToggleButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Painel de Controle");
 
         LBLSrvDesktop.setFont(new java.awt.Font("Liberation Sans", 0, 12)); // NOI18N
