@@ -41,7 +41,7 @@ public class JFrameApuração extends javax.swing.JFrame {
                 DatagramPacket pckt = new DatagramPacket(b, b.length);
                 s.receive(pckt); // A thread para aqui esperando o servidor enviar os dados
                 String resultado = new String(pckt.getData(), 0, pckt.getLength());
-                // Atualiza a Label com o texto HTML recebido
+                // Atualiza a Label com o HTML recebido
                 SwingUtilities.invokeLater(() -> labelResultados.setText(resultado));
                 s.leaveGroup(group);
                 s.close();

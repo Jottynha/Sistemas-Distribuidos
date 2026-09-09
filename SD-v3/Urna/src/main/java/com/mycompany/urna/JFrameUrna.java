@@ -142,7 +142,7 @@ public class JFrameUrna extends javax.swing.JFrame {
                 writer.flush();
                 writer.close();
                 client.close();
-                JOptionPane.showMessageDialog(this, "Voto registrado com sucesso!");
+                //JOptionPane.showMessageDialog(this, "Voto registrado com sucesso!");
             } catch (Exception error) {
                 JOptionPane.showMessageDialog(this, "Erro ao conectar com a urna central:\n" + error);
                 return; 
