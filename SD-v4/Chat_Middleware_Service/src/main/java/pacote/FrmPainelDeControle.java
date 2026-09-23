@@ -4,6 +4,8 @@
  */
 package pacote;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author joao
@@ -151,9 +153,20 @@ public class FrmPainelDeControle extends javax.swing.JFrame {
     private void BtnAtivarDesktopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnAtivarDesktopActionPerformed
         if(BtnAtivarDesktop.isSelected()==true){
             BtnAtivarDesktop.setText("Desativar");
-            //...
+            //DesktopRecepcaoThread t1 = new DesktopRecepcaoThread();
+            //Thread x = new Thread(t1);
+            //x.start();
+            //Thread.ofVirtual().start(t1); //[JAVA 21]  
+            Util.desktopRecepcaoThread = new DesktopRecepcaoThread();
+            Thread.ofVirtual().start(Util.desktopRecepcaoThread);
         } else {
-            BtnAtivarDesktop.setText("Ativar");
+            int resposta = JOptionPane.showConfirmDialog(null,"Deseja realmente parar os Serviços para clientes DESKTOP?","Confirmação",JOptionPane.YES_NO_OPTION);
+            if(resposta==JOptionPane.YES_OPTION){
+                Util.desktopRecepcaoThread.fecharServidor();
+                BtnAtivarDesktop.setText("Ativar");
+            } else {
+                BtnAtivarDesktop.setSelected(true);
+            }
         }
     }//GEN-LAST:event_BtnAtivarDesktopActionPerformed
 
