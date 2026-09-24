@@ -4,6 +4,8 @@
  */
 package pacote;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author joao
@@ -43,8 +45,9 @@ public class FrmLogin extends javax.swing.JFrame {
         LblAvatar2 = new javax.swing.JLabel();
         RadAvatar3 = new javax.swing.JRadioButton();
         LblAvatar3 = new javax.swing.JLabel();
+        BtnEntrar = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Login");
         setMinimumSize(new java.awt.Dimension(400, 300));
         setName("FrmLogin"); // NOI18N
@@ -62,11 +65,11 @@ public class FrmLogin extends javax.swing.JFrame {
         LblNick.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         LblNick.setText("Nickname:");
         getContentPane().add(LblNick);
-        LblNick.setBounds(10, 0, 130, 40);
+        LblNick.setBounds(10, 10, 130, 40);
 
         GrpCor.add(RadAzul);
         RadAzul.setFont(new java.awt.Font("Liberation Sans", 1, 15)); // NOI18N
-        RadAzul.setForeground(new java.awt.Color(0, 51, 255));
+        RadAzul.setForeground(new java.awt.Color(0, 0, 102));
         RadAzul.setSelected(true);
         RadAzul.setText("Azul");
         RadAzul.addActionListener(this::RadAzulActionPerformed);
@@ -95,6 +98,7 @@ public class FrmLogin extends javax.swing.JFrame {
         LblAvatar.setBounds(40, 90, 70, 22);
 
         GrpAvatar.add(RadAvatar1);
+        RadAvatar1.setSelected(true);
         RadAvatar1.addActionListener(this::RadAvatar1ActionPerformed);
         getContentPane().add(RadAvatar1);
         RadAvatar1.setBounds(110, 90, 19, 19);
@@ -124,6 +128,12 @@ public class FrmLogin extends javax.swing.JFrame {
         getContentPane().add(LblAvatar3);
         LblAvatar3.setBounds(230, 90, 20, 20);
 
+        BtnEntrar.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        BtnEntrar.setText("ENTRAR");
+        BtnEntrar.addActionListener(this::BtnEntrarActionPerformed);
+        getContentPane().add(BtnEntrar);
+        BtnEntrar.setBounds(110, 140, 170, 50);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -151,18 +161,35 @@ public class FrmLogin extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_RadAvatar3ActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    private void BtnEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnEntrarActionPerformed
+        if (!TxtNick.getText().equals("")){
+            Util.nickname = TxtNick.getText();
+            if(RadAzul.isSelected()){
+                Util.cor = "DarkBlue";
+            } else if (RadVerde.isSelected()){
+                Util.cor = "Green";
+            } else if (RadVermelho.isSelected()) {
+                Util.cor = "Tomato";
+            }
+            if(RadAvatar1.isSelected()){
+                Util.avatar = "./images/icons8-lanterna-verde-16.png";
+            } else if(RadAvatar2.isSelected()){
+                Util.avatar = "./images/icons8-batman-antigo-16.png";
+            } else if(RadAvatar3.isSelected()){
+                Util.avatar = "./images/icons8-the-flash-sign-16.png";
+            }
+            FrmChat frmchat = new FrmChat();
+            frmchat.setVisible(true);
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(null,"Digite um Nickname!");
+        }
+    }//GEN-LAST:event_BtnEntrarActionPerformed
+
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Dark Metal".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -177,6 +204,7 @@ public class FrmLogin extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BtnEntrar;
     private javax.swing.ButtonGroup GrpAvatar;
     private javax.swing.ButtonGroup GrpCor;
     private javax.swing.JLabel LblAvatar;
