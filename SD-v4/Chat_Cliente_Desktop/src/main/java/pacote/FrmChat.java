@@ -1,8 +1,14 @@
 package pacote;
 
+import java.awt.event.KeyEvent;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+
 public class FrmChat extends javax.swing.JFrame {
     public String msg = "";
-    public void gerarMensagem(){
+    public void gerarEenviarMensagem(){
         this.msg = "";
         this.msg += "<img src='" + Util.avatar + "' width='20' height='20'>";
         //this.msg += "<font color='" + Util.cor + "'>";
@@ -19,6 +25,40 @@ public class FrmChat extends javax.swing.JFrame {
             this.msg += "<b> Xinga: </b>";
             this.msg += "<font color='Yellow' size='+3'>" + TxtMensagem.getText().toUpperCase();
         }
+        this.msg += "<br>";
+        ArrayList<String> codigos = new ArrayList<String>();
+        ArrayList<String> simbolos = new ArrayList<String>();
+        codigos.add(":-)");
+        simbolos.add("&#128513");
+        codigos.add(";-)");
+        simbolos.add("&#128521");
+        codigos.add(":-|");
+        simbolos.add("&#128511");
+        codigos.add(":-P");
+        simbolos.add("&#128523");
+        codigos.add(">:)");
+        simbolos.add("&#128520");
+        codigos.add("B-)");
+        simbolos.add("&#128526");
+        codigos.add(":-(");
+        simbolos.add("&#128531");
+        for(int i=0;i<codigos.size();i++){
+            this.msg = this.msg.replace(codigos.get(i),simbolos.get(i));
+        }
+        try{
+            Socket cliente = new Socket("200.128.142.91",6662);
+            ObjectOutputStream output = new ObjectOutputStream(cliente.getOutputStream());
+            output.writeUTF(this.msg);
+            output.close();
+            cliente.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,"Erro no Cliente ao enviar:" + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        
+        
+        
     }
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FrmChat.class.getName());
     public FrmChat() {
@@ -55,6 +95,11 @@ public class FrmChat extends javax.swing.JFrame {
         LblMensagem.setText("Mensagem");
 
         TxtMensagem.setToolTipText("");
+        TxtMensagem.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                TxtMensagemKeyPressed(evt);
+            }
+        });
 
         LblModo.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         LblModo.setText("Modo:");
@@ -68,6 +113,7 @@ public class FrmChat extends javax.swing.JFrame {
 
         BtnEnviar.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         BtnEnviar.setText("ENVIAR");
+        BtnEnviar.addActionListener(this::BtnEnviarActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -117,6 +163,16 @@ public class FrmChat extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void BtnEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnEnviarActionPerformed
+        this.gerarEenviarMensagem();
+    }//GEN-LAST:event_BtnEnviarActionPerformed
+
+    private void TxtMensagemKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TxtMensagemKeyPressed
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER){
+            this.gerarEenviarMensagem();
+        }
+    }//GEN-LAST:event_TxtMensagemKeyPressed
 
     /**
      * @param args the command line arguments

@@ -104,6 +104,9 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value=""/>
       </Properties>
+      <Events>
+        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="TxtMensagemKeyPressed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="LblModo">
       <Properties>
@@ -157,6 +160,9 @@
         </Property>
         <Property name="text" type="java.lang.String" value="ENVIAR"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BtnEnviarActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

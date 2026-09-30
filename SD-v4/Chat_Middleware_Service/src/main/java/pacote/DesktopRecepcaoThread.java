@@ -3,6 +3,7 @@ package pacote;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import javax.swing.JOptionPane;
@@ -18,14 +19,14 @@ public class DesktopRecepcaoThread implements Runnable {
             while(!paradaManual){
                 receptor = new ServerSocket(Util.PortaRecepcaoDesktop);
                 cliente = receptor.accept();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
-                String msg = reader.readLine();
+                ObjectInputStream reader = new ObjectInputStream(cliente.getInputStream());
+                String msg = reader.readUTF();
                 reader.close();
                 cliente.close();
                 receptor.close();
-                JOptionPane.showMessageDialog(null,"Mensagem:" + msg);
                 FileWriter fwriter = new FileWriter(Util.PathRepDesktop,true);
                 fwriter.write(msg);
+                fwriter.write(System.lineSeparator());
                 fwriter.close();
             }
         } catch (Exception e){
