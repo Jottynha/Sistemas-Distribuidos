@@ -155,6 +155,9 @@ public class FrmPainelDeControle extends javax.swing.JFrame {
             //Thread.ofVirtual().start(t1); //[JAVA 21]  
             Util.desktopRecepcaoThread = new DesktopRecepcaoThread();
             Thread.ofVirtual().start(Util.desktopRecepcaoThread);
+            
+            Util.desktopEnvioThread = new DesktopEnvioThread();
+            Thread.ofVirtual().start(Util.desktopEnvioThread);
         } else {
             int resposta = JOptionPane.showConfirmDialog(null,"Deseja realmente parar os Serviços para clientes DESKTOP?","Confirmação",JOptionPane.YES_NO_OPTION);
             if(resposta==JOptionPane.YES_OPTION){

@@ -1,10 +1,14 @@
 package pacote;
 
 import java.awt.event.KeyEvent;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 
 public class FrmChat extends javax.swing.JFrame {
     public String msg = "";
@@ -63,6 +67,25 @@ public class FrmChat extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FrmChat.class.getName());
     public FrmChat() {
         initComponents();
+        Thread.ofVirtual().start(()->{
+            while (true){
+                try{
+                Socket cliente = new Socket("200.128.142.91",Util.PortaEnvioDesktop);
+                ObjectInputStream input = new ObjectInputStream(cliente.getInputStream());
+                String msgs = input.readUTF();
+                input.close();
+                cliente.close();
+                HTMLDocument doc = (HTMLDocument) EdtConversa.getDocument();
+                HTMLEditorKit kit = (HTMLEditorKit) EdtConversa.getEditorKit();
+                EdtConversa.setText("");
+                kit.insertHTML(doc,doc.getLength(),msgs,0,0,null); // 0,0,null = ponto inicial de inserção, niveis de tags a serem ignorados, tag para iniciar edição
+                Thread.sleep(1000);
+                } catch (Exception e){
+                    JOptionPane.showMessageDialog(null,"Erro ao inicar Thread FrmChat:" + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     /**
