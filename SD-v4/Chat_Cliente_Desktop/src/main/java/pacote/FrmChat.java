@@ -14,7 +14,7 @@ public class FrmChat extends javax.swing.JFrame {
     public String msg = "";
     public void gerarEenviarMensagem(){
         this.msg = "";
-        this.msg += "<img src='" + Util.avatar + "' width='20' height='20'>";
+        this.msg += "<img src='file:" + Util.avatar + "' width='20' height='20'>";
         //this.msg += "<font color='" + Util.cor + "'>";
         this.msg += "<font color='cor'> apelido </font>";
         this.msg = this.msg.replace("cor",Util.cor);

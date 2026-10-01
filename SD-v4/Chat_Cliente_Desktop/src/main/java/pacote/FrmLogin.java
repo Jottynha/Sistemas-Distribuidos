@@ -161,18 +161,18 @@ public class FrmLogin extends javax.swing.JFrame {
         if (!TxtNick.getText().equals("")){
             Util.nickname = TxtNick.getText();
             if(RadAzul.isSelected()){
-                Util.cor = "DarkBlue";
+                Util.cor = "Blue";
             } else if (RadVerde.isSelected()){
                 Util.cor = "Green";
             } else if (RadVermelho.isSelected()) {
-                Util.cor = "Tomato";
+                Util.cor = "Red";
             }
             if(RadAvatar1.isSelected()){
-                Util.avatar = "./images/icons8-lanterna-verde-16.png";
+                Util.avatar = "/home/joao/Projetos/Sistemas-Distribuidos/SD-v4/Chat_Cliente_Desktop/src/main/java/images/icons8-lanterna-verde-16.png";
             } else if(RadAvatar2.isSelected()){
-                Util.avatar = "./images/icons8-batman-antigo-16.png";
+                Util.avatar = "/home/joao/Projetos/Sistemas-Distribuidos/SD-v4/Chat_Cliente_Desktop/src/main/java/images/icons8-batman-antigo-16.png";
             } else if(RadAvatar3.isSelected()){
-                Util.avatar = "./images/icons8-the-flash-sign-16.png";
+                Util.avatar = "/home/joao/Projetos/Sistemas-Distribuidos/SD-v4/Chat_Cliente_Desktop/src/main/java/images/icons8-the-flash-sign-16.png";
             }
             FrmChat frmchat = new FrmChat();
             frmchat.setVisible(true);
