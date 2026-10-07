@@ -1,8 +1,6 @@
 package pacote;
 
-import java.io.BufferedReader;
 import java.io.FileWriter;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,7 +12,6 @@ public class DesktopRecepcaoThread implements Runnable {
     private ServerSocket receptor;
     @Override
     public void run() {
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         try{
             while(!paradaManual){
                 receptor = new ServerSocket(Util.PortaRecepcaoDesktop);
@@ -38,19 +35,14 @@ public class DesktopRecepcaoThread implements Runnable {
     public void fecharServidor() {
         paradaManual = true;
         try {
-
             if (cliente != null && !cliente.isClosed()) {
                 cliente.close();
             }
-
             if (receptor != null && !receptor.isClosed()) {
                 receptor.close();
             }
-
         } catch (Exception e) {
-
             if (paradaManual) {
-                // Não exibe erro ao desligar propositalmente.
             }
         }
 }

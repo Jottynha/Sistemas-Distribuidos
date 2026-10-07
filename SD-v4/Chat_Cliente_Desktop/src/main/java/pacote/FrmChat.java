@@ -203,7 +203,7 @@ public class FrmChat extends javax.swing.JFrame {
         JPanel painelStickers = new JPanel(new BorderLayout());
         painelStickers.add(new javax.swing.JLabel("Stickers disponíveis futuramente",javax.swing.SwingConstants.CENTER),BorderLayout.CENTER);
         abasPrincipal.addTab("😊 Emojis",painelEmojis);
-        abasPrincipal.addTab("🖼 Stickers",painelStickers);
+        abasPrincipal.addTab("🖼Stickers",painelStickers);
         abasPrincipal.setPreferredSize(new Dimension(380, 260));
         popupEmojis.setLayout(new BorderLayout());
         popupEmojis.add(abasPrincipal,BorderLayout.CENTER);
@@ -260,49 +260,23 @@ public class FrmChat extends javax.swing.JFrame {
                         TxtMensagem.setEnabled(true);
                         BtnEnviar.setEnabled(true);
                         BtnEmoji.setEnabled(true);
-
                         EdtConversa.setText("");
-
                         if (msgs != null && !msgs.isBlank()) {
-
-                            HTMLDocument doc =
-                                (HTMLDocument)
-                                EdtConversa.getDocument();
-
-                            HTMLEditorKit kit =
-                                (HTMLEditorKit)
-                                EdtConversa.getEditorKit();
-
+                            HTMLDocument doc = (HTMLDocument) EdtConversa.getDocument();
+                            HTMLEditorKit kit = (HTMLEditorKit) EdtConversa.getEditorKit();
                             try {
-
-                                kit.insertHTML(
-                                    doc,
-                                    doc.getLength(),
-                                    msgs,
-                                    0,
-                                    0,
-                                    null
-                                );
-
-                            } catch (Exception ex) {
-
+                                kit.insertHTML(doc,doc.getLength(),msgs,0,0,null);
+                            } catch (Exception e) {
                                 EdtConversa.setText(msgs);
                             }
                         }
                     });
-
                     Thread.sleep(1000);
-
                 } catch (Exception e) {
-
                     mostrarManutencao();
-
                     try {
-
                         Thread.sleep(1500);
-
                     } catch (InterruptedException ex) {
-
                         Thread.currentThread().interrupt();
                         break;
                     }
@@ -312,25 +286,15 @@ public class FrmChat extends javax.swing.JFrame {
     }
     private void mostrarManutencao() {
         SwingUtilities.invokeLater(() -> {
-
             if (!emManutencao) {
-
                 emManutencao = true;
-
                 TxtMensagem.setEnabled(false);
                 BtnEnviar.setEnabled(false);
                 BtnEmoji.setEnabled(false);
-
-                EdtConversa.setText(
-                    "<html>"
-                    + "<body style='text-align:center;'>"
-                    + "<br><br>"
-                    + "<h2>Servidor em manutenção</h2>"
-                    + "<p>O serviço de chat está "
-                    + "temporariamente indisponível.</p>"
+                EdtConversa.setText( "<html> <body style='text-align:center;'> <br><br>"
+                    + "<h2>Servidor em manutenção</h2> <p>O serviço de chat está temporariamente indisponível.</p>"
                     + "<p>Tentando reconectar...</p>"
-                    + "</body>"
-                    + "</html>"
+                    + "</body> </html>"
                 );
             }
         });
