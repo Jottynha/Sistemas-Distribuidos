@@ -9,7 +9,7 @@ import java.net.Socket;
 import javax.swing.JOptionPane;
 
 public class DesktopRecepcaoThread implements Runnable {
-    private boolean paradaManual = false;
+    private volatile boolean paradaManual = false;
     private Socket cliente;
     private ServerSocket receptor;
     @Override
@@ -35,22 +35,25 @@ public class DesktopRecepcaoThread implements Runnable {
             }
         }
     }
-    public void fecharServidor(){
+    public void fecharServidor() {
         paradaManual = true;
-        try{
-            if((cliente != null)&&(!cliente.isClosed())){
+        try {
+
+            if (cliente != null && !cliente.isClosed()) {
                 cliente.close();
-            } 
-            if((receptor != null)&&(!receptor.isClosed())){
+            }
+
+            if (receptor != null && !receptor.isClosed()) {
                 receptor.close();
             }
-        } catch (Exception e){
-            if(paradaManual){
-                JOptionPane.showMessageDialog(null,"Erro em DesktopRecepcaoThread::fecharServidor:\n"+ e.getMessage());
-            }         
+
+        } catch (Exception e) {
+
+            if (paradaManual) {
+                // Não exibe erro ao desligar propositalmente.
+            }
         }
-        
-    }
+}
     
     
 }

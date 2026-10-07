@@ -4,95 +4,73 @@ import java.awt.event.KeyEvent;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import javax.swing.JOptionPane;
-import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 
 public class FrmChat extends javax.swing.JFrame {
+    private volatile boolean emManutencao = false; // volátil -> thread de recepção está sendo executada separadamente.
+    private final JPopupMenu popupEmojis = new JPopupMenu();
     public String msg = "";
-    public void gerarEenviarMensagem(){
+    public void gerarEenviarMensagem() {
+        if (emManutencao) {
+            return;
+        }
         this.msg = "";
         this.msg += "<img src='file:" + Util.avatar + "' width='20' height='20'>";
-        //this.msg += "<font color='" + Util.cor + "'>";
-        this.msg += "<font color='cor'> apelido </font>";
-        this.msg = this.msg.replace("cor",Util.cor);
-        this.msg = this.msg.replace("apelido",Util.nickname);
-        if(CBModo.getSelectedItem().toString().equals("Fala")){
+        this.msg += "<font color='" + Util.cor + "'>" + Util.nickname + "</font>";
+        String texto = substituirEmojisHtml(
+            TxtMensagem.getText()
+        );
+        if (CBModo.getSelectedItem().toString().equals("Fala")) {
             this.msg += "<b> Fala: </b>";
-            this.msg += TxtMensagem.getText();
-        } else if(CBModo.getSelectedItem().toString().equals("Grita")){
+            this.msg += texto;
+        } else if (
+            CBModo.getSelectedItem().toString().equals("Grita")
+        ) {
             this.msg += "<b><i><u> Grita: </b></i></u>";
-            this.msg += "<font color='Tomato' size='+1'>" + TxtMensagem.getText().toUpperCase();
-        } else if(CBModo.getSelectedItem().toString().equals("Xinga")){
+            this.msg += "<font color='Red' size='+1'>" + texto.toUpperCase() + "</font>";
+        } else if (
+            CBModo.getSelectedItem().toString().equals("Xinga")
+        ) {
             this.msg += "<b> Xinga: </b>";
-            this.msg += "<font color='Yellow' size='+3'>" + TxtMensagem.getText().toUpperCase();
+            this.msg += "<font color='Yellow' size='+3'>" + texto.toUpperCase() + "</font>";
         }
         this.msg += "<br>";
-        ArrayList<String> codigos = new ArrayList<String>();
-        ArrayList<String> simbolos = new ArrayList<String>();
-        codigos.add(":-)");
-        simbolos.add("&#128513");
-        codigos.add(";-)");
-        simbolos.add("&#128521");
-        codigos.add(":-|");
-        simbolos.add("&#128511");
-        codigos.add(":-P");
-        simbolos.add("&#128523");
-        codigos.add(">:)");
-        simbolos.add("&#128520");
-        codigos.add("B-)");
-        simbolos.add("&#128526");
-        codigos.add(":-(");
-        simbolos.add("&#128531");
-        for(int i=0;i<codigos.size();i++){
-            this.msg = this.msg.replace(codigos.get(i),simbolos.get(i));
-        }
-        try{
-            Socket cliente = new Socket("200.128.142.91",6662);
+        this.msg = this.msg.replace(":-)", "&#128513;");
+        this.msg = this.msg.replace(";-)", "&#128521;");
+        this.msg = this.msg.replace(":-|", "&#128511;");
+        this.msg = this.msg.replace(":-P", "&#128523;");
+        this.msg = this.msg.replace(">:)", "&#128520;");
+        this.msg = this.msg.replace("B-)", "&#128526;");
+        this.msg = this.msg.replace(":-(", "&#128531;");
+        try {
+            Socket cliente = new Socket("200.128.142.91", 6662);
             ObjectOutputStream output = new ObjectOutputStream(cliente.getOutputStream());
             output.writeUTF(this.msg);
             output.close();
             cliente.close();
+            TxtMensagem.setText("");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"Erro no Cliente ao enviar:" + e.getMessage());
-            e.printStackTrace();
+            mostrarManutencao();
         }
-        
-        
-        
-        
     }
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FrmChat.class.getName());
     public FrmChat() {
         initComponents();
-        Thread.ofVirtual().start(()->{
-            while (true){
-                try{
-                Socket cliente = new Socket("200.128.142.91",Util.PortaEnvioDesktop);
-                ObjectInputStream input = new ObjectInputStream(cliente.getInputStream());
-                String msgs = input.readUTF();
-                input.close();
-                cliente.close();
-                HTMLDocument doc = (HTMLDocument) EdtConversa.getDocument();
-                HTMLEditorKit kit = (HTMLEditorKit) EdtConversa.getEditorKit();
-                EdtConversa.setText("");
-                kit.insertHTML(doc,doc.getLength(),msgs,0,0,null); // 0,0,null = ponto inicial de inserção, niveis de tags a serem ignorados, tag para iniciar edição
-                Thread.sleep(1000);
-                } catch (Exception e){
-                    JOptionPane.showMessageDialog(null,"Erro ao inicar Thread FrmChat:" + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        });
+        configurarPopupEmojis();
+        iniciarMonitorServidor();
     }
-
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -103,9 +81,8 @@ public class FrmChat extends javax.swing.JFrame {
         TxtMensagem = new javax.swing.JTextField();
         LblModo = new javax.swing.JLabel();
         CBModo = new javax.swing.JComboBox<>();
-        LblEmoji = new javax.swing.JLabel();
-        CBEmoji = new javax.swing.JComboBox<>();
         BtnEnviar = new javax.swing.JButton();
+        BtnEmoji = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Chat");
@@ -129,14 +106,12 @@ public class FrmChat extends javax.swing.JFrame {
 
         CBModo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Fala", "Grita", "Xinga" }));
 
-        LblEmoji.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
-        LblEmoji.setText("Emoji");
-
-        CBEmoji.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nenhum", "Coração", "Dinheiro", "Beijo" }));
-
         BtnEnviar.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         BtnEnviar.setText("ENVIAR");
         BtnEnviar.addActionListener(this::BtnEnviarActionPerformed);
+
+        BtnEmoji.setText("😊 ");
+        BtnEmoji.addActionListener(this::BtnEmojiActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -149,17 +124,18 @@ public class FrmChat extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(LblModo)
-                            .addComponent(LblMensagem)
-                            .addComponent(LblEmoji))
+                            .addComponent(LblMensagem))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(TxtMensagem)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(CBModo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(CBEmoji, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(BtnEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(0, 351, Short.MAX_VALUE)))))
+                                .addComponent(CBModo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(167, 167, 167)
+                                .addComponent(BtnEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(TxtMensagem, javax.swing.GroupLayout.PREFERRED_SIZE, 483, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(BtnEmoji)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -170,18 +146,17 @@ public class FrmChat extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(LblMensagem)
-                    .addComponent(TxtMensagem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(LblModo)
-                    .addComponent(CBModo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(TxtMensagem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BtnEmoji))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(LblEmoji)
-                    .addComponent(CBEmoji, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(BtnEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(LblModo)
+                            .addComponent(CBModo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(BtnEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(85, Short.MAX_VALUE))
         );
 
         pack();
@@ -197,40 +172,167 @@ public class FrmChat extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_TxtMensagemKeyPressed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void BtnEmojiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnEmojiActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BtnEmojiActionPerformed
 
-        /* Create and display the form */
+    public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(() -> new FrmChat().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BtnEmoji;
     private javax.swing.JButton BtnEnviar;
-    private javax.swing.JComboBox<String> CBEmoji;
     private javax.swing.JComboBox<String> CBModo;
     private javax.swing.JEditorPane EdtConversa;
-    private javax.swing.JLabel LblEmoji;
     private javax.swing.JLabel LblMensagem;
     private javax.swing.JLabel LblModo;
     private javax.swing.JScrollPane ScrConversa;
     private javax.swing.JTextField TxtMensagem;
     // End of variables declaration//GEN-END:variables
+    private void configurarPopupEmojis() {
+        JTabbedPane abasPrincipal = new JTabbedPane();
+        JTabbedPane abasEmojis = new JTabbedPane();
+        abasEmojis.addTab("Rostos",criarGradeEmojis(new String[]{
+                "😀", "😁", "😂", "😅", "😊", "😍",
+                "😎", "😘", "😜", "😢", "😡", "😱"
+            })
+        );
+        JPanel painelEmojis = new JPanel(new BorderLayout());
+        painelEmojis.add(abasEmojis,BorderLayout.CENTER);
+        JPanel painelStickers = new JPanel(new BorderLayout());
+        painelStickers.add(new javax.swing.JLabel("Stickers disponíveis futuramente",javax.swing.SwingConstants.CENTER),BorderLayout.CENTER);
+        abasPrincipal.addTab("😊 Emojis",painelEmojis);
+        abasPrincipal.addTab("🖼 Stickers",painelStickers);
+        abasPrincipal.setPreferredSize(new Dimension(380, 260));
+        popupEmojis.setLayout(new BorderLayout());
+        popupEmojis.add(abasPrincipal,BorderLayout.CENTER);
+        BtnEmoji.addActionListener(e ->popupEmojis.show(BtnEmoji,0,BtnEmoji.getHeight()));
+    }
+    private JPanel criarGradeEmojis(String[] emojis) {
+        JPanel painel = new JPanel(new GridLayout(0, 6, 4, 4));
+        painel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        for (String emoji : emojis) {
+            JButton btn = new JButton(emoji);
+            btn.setFont(new Font("Dialog", Font.PLAIN, 20));
+            btn.setMargin(new Insets(3, 3, 3, 3));
+            btn.setFocusPainted(false);
+            btn.setToolTipText(emoji);
+            btn.addActionListener(e ->inserirEmojiNoTexto(emoji));
+            painel.add(btn);
+        }
+        return painel;
+    }
+    private void inserirEmojiNoTexto(String emoji) {
+        int posicao = TxtMensagem.getCaretPosition();
+        String texto = TxtMensagem.getText();
+        TxtMensagem.setText(texto.substring(0, posicao) + emoji + texto.substring(posicao));
+        TxtMensagem.setCaretPosition(posicao + emoji.length());
+        TxtMensagem.requestFocusInWindow();
+        popupEmojis.setVisible(false);
+    }
+    private String substituirEmojisHtml(String texto) {
+        return texto
+            .replace("😀", "&#128512;")
+            .replace("😁", "&#128513;")
+            .replace("😂", "&#128514;")
+            .replace("😅", "&#128517;")
+            .replace("😊", "&#128522;")
+            .replace("😍", "&#128525;")
+            .replace("😎", "&#128526;")
+            .replace("😘", "&#128536;")
+            .replace("😜", "&#128539;")
+            .replace("😢", "&#128546;")
+            .replace("😡", "&#128545;")
+            .replace("😱", "&#128561;");
+    }
+    private void iniciarMonitorServidor() {
+        Thread.ofVirtual().start(() -> {
+            while (true) {
+                try {
+                    Socket cliente = new Socket("200.128.142.91",Util.PortaEnvioDesktop);
+                    ObjectInputStream input = new ObjectInputStream(cliente.getInputStream());
+                    String msgs = input.readUTF();
+                    input.close();
+                    cliente.close();
+                    SwingUtilities.invokeLater(() -> {
+                        emManutencao = false;
+                        TxtMensagem.setEnabled(true);
+                        BtnEnviar.setEnabled(true);
+                        BtnEmoji.setEnabled(true);
+
+                        EdtConversa.setText("");
+
+                        if (msgs != null && !msgs.isBlank()) {
+
+                            HTMLDocument doc =
+                                (HTMLDocument)
+                                EdtConversa.getDocument();
+
+                            HTMLEditorKit kit =
+                                (HTMLEditorKit)
+                                EdtConversa.getEditorKit();
+
+                            try {
+
+                                kit.insertHTML(
+                                    doc,
+                                    doc.getLength(),
+                                    msgs,
+                                    0,
+                                    0,
+                                    null
+                                );
+
+                            } catch (Exception ex) {
+
+                                EdtConversa.setText(msgs);
+                            }
+                        }
+                    });
+
+                    Thread.sleep(1000);
+
+                } catch (Exception e) {
+
+                    mostrarManutencao();
+
+                    try {
+
+                        Thread.sleep(1500);
+
+                    } catch (InterruptedException ex) {
+
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+            }
+        });
+    }
+    private void mostrarManutencao() {
+        SwingUtilities.invokeLater(() -> {
+
+            if (!emManutencao) {
+
+                emManutencao = true;
+
+                TxtMensagem.setEnabled(false);
+                BtnEnviar.setEnabled(false);
+                BtnEmoji.setEnabled(false);
+
+                EdtConversa.setText(
+                    "<html>"
+                    + "<body style='text-align:center;'>"
+                    + "<br><br>"
+                    + "<h2>Servidor em manutenção</h2>"
+                    + "<p>O serviço de chat está "
+                    + "temporariamente indisponível.</p>"
+                    + "<p>Tentando reconectar...</p>"
+                    + "</body>"
+                    + "</html>"
+                );
+            }
+        });
+    }
 }

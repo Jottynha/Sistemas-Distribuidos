@@ -147,23 +147,53 @@ public class FrmPainelDeControle extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void BtnAtivarDesktopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnAtivarDesktopActionPerformed
-        if(BtnAtivarDesktop.isSelected()==true){
+
+        if (BtnAtivarDesktop.isSelected()) {
+
             BtnAtivarDesktop.setText("Desativar");
-            //DesktopRecepcaoThread t1 = new DesktopRecepcaoThread();
-            //Thread x = new Thread(t1);
-            //x.start();
-            //Thread.ofVirtual().start(t1); //[JAVA 21]  
-            Util.desktopRecepcaoThread = new DesktopRecepcaoThread();
-            Thread.ofVirtual().start(Util.desktopRecepcaoThread);
-            
-            Util.desktopEnvioThread = new DesktopEnvioThread();
-            Thread.ofVirtual().start(Util.desktopEnvioThread);
+
+            Util.desktopRecepcaoThread =
+                new DesktopRecepcaoThread();
+
+            Thread.ofVirtual().start(
+                Util.desktopRecepcaoThread
+            );
+
+            Util.desktopEnvioThread =
+                new DesktopEnvioThread();
+
+            Thread.ofVirtual().start(
+                Util.desktopEnvioThread
+            );
+
         } else {
-            int resposta = JOptionPane.showConfirmDialog(null,"Deseja realmente parar os Serviços para clientes DESKTOP?","Confirmação",JOptionPane.YES_NO_OPTION);
-            if(resposta==JOptionPane.YES_OPTION){
-                Util.desktopRecepcaoThread.fecharServidor();
+
+            int resposta =
+                JOptionPane.showConfirmDialog(
+                    null,
+                    "Deseja realmente parar os Serviços "
+                    + "para clientes DESKTOP?",
+                    "Confirmação",
+                    JOptionPane.YES_NO_OPTION
+                );
+
+            if (resposta == JOptionPane.YES_OPTION) {
+
+                if (Util.desktopRecepcaoThread != null) {
+                    Util.desktopRecepcaoThread.fecharServidor();
+                }
+
+                if (Util.desktopEnvioThread != null) {
+                    Util.desktopEnvioThread.fecharServidor();
+                }
+
+                Util.desktopRecepcaoThread = null;
+                Util.desktopEnvioThread = null;
+
                 BtnAtivarDesktop.setText("Ativar");
+
             } else {
+
                 BtnAtivarDesktop.setSelected(true);
             }
         }

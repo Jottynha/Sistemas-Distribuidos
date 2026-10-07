@@ -7,36 +7,115 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import javax.swing.JOptionPane;
 
-public class DesktopEnvioThread implements Runnable{
+public class DesktopEnvioThread implements Runnable {
+
+    private volatile boolean paradaManual = false;
+
     private ServerSocket emissor;
     private Socket cliente;
+
     @Override
     public void run() {
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+
         try {
-            while(true){
-                FileReader freader = new FileReader(Util.PathRepDesktop);
-                BufferedReader buffer = new BufferedReader(freader);
-                String msgs = "";
-                while(buffer.ready()){
-                    msgs += buffer.readLine();
-                }    
+
+            while (!paradaManual) {
+
+                FileReader freader =
+                    new FileReader(Util.PathRepDesktop);
+
+                BufferedReader buffer =
+                    new BufferedReader(freader);
+
+                StringBuilder msgs =
+                    new StringBuilder();
+
+                while (buffer.ready()) {
+                    msgs.append(buffer.readLine());
+                }
+
                 buffer.close();
                 freader.close();
-                emissor = new ServerSocket(Util.PortaEnvioDesktop);
+
+                emissor =
+                    new ServerSocket(
+                        Util.PortaEnvioDesktop
+                    );
+
                 emissor.setReuseAddress(true);
+
                 cliente = emissor.accept();
-                ObjectOutputStream output = new ObjectOutputStream(cliente.getOutputStream());
-                output.writeUTF(msgs);
+
+                if (paradaManual) {
+                    break;
+                }
+
+                ObjectOutputStream output =
+                    new ObjectOutputStream(
+                        cliente.getOutputStream()
+                    );
+
+                output.writeUTF(
+                    msgs.toString()
+                );
+
                 output.close();
+
                 cliente.close();
+                cliente = null;
+
                 emissor.close();
+                emissor = null;
             }
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"Erro em Desktop Envio Thread:" + e.getMessage());
-            e.printStackTrace();
-            
+
+            if (!paradaManual) {
+
+                JOptionPane.showMessageDialog(
+                    null,
+                    "Erro em Desktop Envio Thread: "
+                    + e.getMessage()
+                );
+            }
+
+        } finally {
+
+            fecharRecursos();
         }
     }
-    
+
+    public void fecharServidor() {
+
+        paradaManual = true;
+
+        fecharRecursos();
+    }
+
+    private void fecharRecursos() {
+
+        try {
+
+            if (
+                cliente != null &&
+                !cliente.isClosed()
+            ) {
+                cliente.close();
+            }
+
+        } catch (Exception ignored) {
+        }
+
+        try {
+
+            if (
+                emissor != null &&
+                !emissor.isClosed()
+            ) {
+                emissor.close();
+            }
+
+        } catch (Exception ignored) {
+        }
+    }
 }
