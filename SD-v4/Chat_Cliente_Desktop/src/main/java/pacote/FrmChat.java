@@ -22,6 +22,7 @@ public class FrmChat extends javax.swing.JFrame {
     private volatile boolean emManutencao = false; // volátil -> thread de recepção está sendo executada separadamente.
     private final JPopupMenu popupEmojis = new JPopupMenu();
     public String msg = "";
+    private final String STICKER_BASE_PATH = "file:/home/joao/Projetos/Sistemas-Distribuidos/SD-v4/Chat_Cliente_Desktop/src/main/java/images/";
     public void gerarEenviarMensagem() {
         if (emManutencao) {
             return;
@@ -29,9 +30,8 @@ public class FrmChat extends javax.swing.JFrame {
         this.msg = "";
         this.msg += "<img src='file:" + Util.avatar + "' width='20' height='20'>";
         this.msg += "<font color='" + Util.cor + "'>" + Util.nickname + "</font>";
-        String texto = substituirEmojisHtml(
-            TxtMensagem.getText()
-        );
+        String texto = substituirEmojisHtml(TxtMensagem.getText());
+        texto = substituirStickersHtml(texto);
         if (CBModo.getSelectedItem().toString().equals("Fala")) {
             this.msg += "<b> Fala: </b>";
             this.msg += texto;
@@ -201,7 +201,8 @@ public class FrmChat extends javax.swing.JFrame {
         JPanel painelEmojis = new JPanel(new BorderLayout());
         painelEmojis.add(abasEmojis,BorderLayout.CENTER);
         JPanel painelStickers = new JPanel(new BorderLayout());
-        painelStickers.add(new javax.swing.JLabel("Stickers disponíveis futuramente",javax.swing.SwingConstants.CENTER),BorderLayout.CENTER);
+        String[] meusStickers = {"fig1.gif", "fig2.gif", "fig3.gif"}; 
+        painelStickers.add(criarGradeStickers(meusStickers), BorderLayout.CENTER);
         abasPrincipal.addTab("😊 Emojis",painelEmojis);
         abasPrincipal.addTab("🖼Stickers",painelStickers);
         abasPrincipal.setPreferredSize(new Dimension(380, 260));
@@ -245,6 +246,53 @@ public class FrmChat extends javax.swing.JFrame {
             .replace("😢", "&#128546;")
             .replace("😡", "&#128545;")
             .replace("😱", "&#128561;");
+    }
+    private JPanel criarGradeStickers(String[] stickers) {
+        JPanel painel = new JPanel(new GridLayout(0, 4, 4, 4)); // Exibirá 4 colunas
+        painel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        
+        for (String sticker : stickers) {
+            JButton btn = new JButton();
+            try {
+                // Tenta carregar a imagem para mostrar no próprio botão do menu
+                java.net.URL url = new java.net.URL(STICKER_BASE_PATH + sticker);
+                btn.setIcon(new javax.swing.ImageIcon(url));
+            } catch (Exception e) {
+                // Caso a imagem não seja encontrada, exibe o nome do arquivo
+                btn.setText(sticker); 
+            }
+            btn.setFocusPainted(false);
+            btn.setToolTipText(sticker);
+            btn.addActionListener(e -> inserirStickerNoTexto(sticker));
+            painel.add(btn);
+        }
+        return painel;
+    }
+
+    private void inserirStickerNoTexto(String sticker) {
+        // Insere um "atalho" no texto que será lido ao enviar (Ex: (sticker:fig1.gif) )
+        String codigoSticker = "(sticker:" + sticker + ")";
+        int posicao = TxtMensagem.getCaretPosition();
+        String texto = TxtMensagem.getText();
+        
+        TxtMensagem.setText(texto.substring(0, posicao) + codigoSticker + texto.substring(posicao));
+        TxtMensagem.setCaretPosition(posicao + codigoSticker.length());
+        TxtMensagem.requestFocusInWindow();
+        popupEmojis.setVisible(false);
+    }
+
+    private String substituirStickersHtml(String texto) {
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\(sticker:(.*?)\\)");
+        java.util.regex.Matcher matcher = pattern.matcher(texto);
+        StringBuffer sb = new StringBuffer();
+        
+        while (matcher.find()) {
+            String nomeArquivo = matcher.group(1);
+            String tagImg = "<img src='" + STICKER_BASE_PATH + nomeArquivo + "' width='60' height='60'>";
+            matcher.appendReplacement(sb, tagImg);
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
     }
     private void iniciarMonitorServidor() {
         Thread.ofVirtual().start(() -> {
