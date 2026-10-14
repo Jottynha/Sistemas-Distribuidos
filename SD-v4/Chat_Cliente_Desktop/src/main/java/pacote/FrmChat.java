@@ -201,7 +201,7 @@ public class FrmChat extends javax.swing.JFrame {
         JPanel painelEmojis = new JPanel(new BorderLayout());
         painelEmojis.add(abasEmojis,BorderLayout.CENTER);
         JPanel painelStickers = new JPanel(new BorderLayout());
-        String[] meusStickers = {"fig1.gif", "fig2.gif", "fig3.gif"}; 
+        String[] meusStickers = {"fig1.gif", "fig2.gif", "Beijo.png","Coração.png","Dinheiro.png"}; 
         painelStickers.add(criarGradeStickers(meusStickers), BorderLayout.CENTER);
         abasPrincipal.addTab("😊 Emojis",painelEmojis);
         abasPrincipal.addTab("🖼Stickers",painelStickers);
@@ -248,17 +248,14 @@ public class FrmChat extends javax.swing.JFrame {
             .replace("😱", "&#128561;");
     }
     private JPanel criarGradeStickers(String[] stickers) {
-        JPanel painel = new JPanel(new GridLayout(0, 4, 4, 4)); // Exibirá 4 colunas
+        JPanel painel = new JPanel(new GridLayout(0, 4, 4, 4));
         painel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        
         for (String sticker : stickers) {
             JButton btn = new JButton();
             try {
-                // Tenta carregar a imagem para mostrar no próprio botão do menu
                 java.net.URL url = new java.net.URL(STICKER_BASE_PATH + sticker);
                 btn.setIcon(new javax.swing.ImageIcon(url));
             } catch (Exception e) {
-                // Caso a imagem não seja encontrada, exibe o nome do arquivo
                 btn.setText(sticker); 
             }
             btn.setFocusPainted(false);
@@ -270,22 +267,18 @@ public class FrmChat extends javax.swing.JFrame {
     }
 
     private void inserirStickerNoTexto(String sticker) {
-        // Insere um "atalho" no texto que será lido ao enviar (Ex: (sticker:fig1.gif) )
         String codigoSticker = "(sticker:" + sticker + ")";
         int posicao = TxtMensagem.getCaretPosition();
         String texto = TxtMensagem.getText();
-        
         TxtMensagem.setText(texto.substring(0, posicao) + codigoSticker + texto.substring(posicao));
         TxtMensagem.setCaretPosition(posicao + codigoSticker.length());
         TxtMensagem.requestFocusInWindow();
         popupEmojis.setVisible(false);
     }
-
     private String substituirStickersHtml(String texto) {
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\(sticker:(.*?)\\)");
         java.util.regex.Matcher matcher = pattern.matcher(texto);
-        StringBuffer sb = new StringBuffer();
-        
+        StringBuffer sb = new StringBuffer();   
         while (matcher.find()) {
             String nomeArquivo = matcher.group(1);
             String tagImg = "<img src='" + STICKER_BASE_PATH + nomeArquivo + "' width='60' height='60'>";
