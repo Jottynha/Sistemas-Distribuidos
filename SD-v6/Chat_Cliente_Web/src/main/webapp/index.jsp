@@ -7,7 +7,7 @@
     </head>
     <body><br><br><br>
         <center>
-            <form name="FrmLogin" action="chat.jsp" method="get">
+            <form name="FrmLogin" action="chat.jsp" method="post">
                 <table border="1">
                     <tr>
                         <td colspan="2" bgcolor="MediumSeaGreen" align="center"><font color = "white" size = "+3">Chat Distribuído 1.0</font></td>
